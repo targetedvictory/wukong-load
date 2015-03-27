@@ -57,7 +57,11 @@ module Wukong
         #
         # @param [Pathname] original
         def process_input original
-          create_hardlink(original, path_for(original))
+          if uncompress_needed?(original)
+            uncompress_and_gzip(original)
+          else
+            create_hardlink(original, path_for(original))
+          end
         end
 
         module Hooks
@@ -95,6 +99,42 @@ module Wukong
           log.debug("Linking #{copy} -> #{original}")
           ln(original, copy, force: true)
           process_metadata_for(copy) if settings[:metadata]
+        end
+
+        def uncompress_needed? original
+          case original.basename.to_s
+          when /\.zip$/ then true
+          else false
+          end
+        end
+
+        def uncompress_and_gzip original
+          copy_dir = path_for(original).dirname
+          copy_filename = ""
+          mkdir_p(copy_dir)
+
+          original_filename = original.basename.to_s
+          unzip_command = ""
+
+          FileUtils.cd(copy_dir) do
+            case original_filename
+            #TO-DO: finish .tar files, .bz2
+            #when /\.tar\.gz$/, /\.tgz$/   then "tar -xvfz"
+            #when /\.tar\.bz2$/, /\.tbz2$/ then "tar -xvfj -C #{copy.dirname.to_s}"
+            #when /\.bz2$/                 then "bzip2 -dk"
+            when /\.zip$/ then 
+              unzip_command = "unzip #{original.to_path} -d #{copy_dir.to_s}"
+              copy_filename = original_filename[0...-4]
+            end
+            
+            raise Error.new("Unzip command exited unsuccessfully") unless system(unzip_command)
+
+            if settings[:gzip_output]
+              raise Error.new("Gzip command exited unsuccessfully") unless system("gzip #{Shellwords.escape(copy_filename)}")
+            end
+          end
+
+          process_metadata_for(Pathname.new("#{copy_dir}/#{copy_filename}")) if settings[:metadata]
         end
 
         # Return the current output directory, chosen by cycling

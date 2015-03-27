@@ -28,6 +28,9 @@ module Wukong
             log.debug("Splitting #{original} -> #{copy}")
             unless settings[:dry_run]
               raise Error.new("Split command exited unsuccessfully") unless system(split_command(original, copy))
+              if settings[:gzip_output]
+                raise Error.new("Gzip command exited unsuccessfully") unless systme(gzip_command(copy))
+              end
                 
               # If the input file is empty then no output file is
               # generated after the split. We'd prefer to pass an
@@ -89,6 +92,17 @@ module Wukong
         def split_command original, copy
           condition = '--' + (split_by_bytes? ? 'bytes' : 'lines') + '=' + (split_by_bytes? ? settings[:bytes] : settings[:lines]).to_s
           "#{file_dumper(original).dump_command} | #{split_program} #{condition} --numeric-suffixes --suffix-length=#{suffix_length} - #{Shellwords.escape(suffix_stem_for(copy))} 2>&1"
+        end
+
+        # Return the command used to gzip the 'copy' files.
+        #
+        # Because of the way the `split` command works, this
+        # command-line should be run from parent directory of `copy`.
+        #
+        # @param [Pathname] copy
+        # @return [String]
+        def gzip_command copy
+          "gzip #{Shellwords.escape(suffix_stem_for(copy))}*"
         end
 
         # Return the stem of the suffix used for each produced output

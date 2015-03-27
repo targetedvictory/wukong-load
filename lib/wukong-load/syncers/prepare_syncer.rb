@@ -91,6 +91,7 @@ module Wukong
         settings.define :lines,   description: "Split into files of this many lines", type: Integer, default: 10_000
         settings.define :bytes,   description: "Split into files of this many bytes instead of splitting by line", type: Integer
         settings.define :split_program, description: "Path to the `split` program", default: 'split'
+        settings.define :gzip_output, description: "Gzip output files", default: true, type: :boolean
         
         settings.description = <<-EOF
 Syncs an --input directory, with possibly growing files, to an
