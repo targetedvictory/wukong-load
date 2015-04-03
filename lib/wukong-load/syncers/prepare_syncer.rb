@@ -91,7 +91,9 @@ module Wukong
         settings.define :lines,   description: "Split into files of this many lines", type: Integer, default: 10_000
         settings.define :bytes,   description: "Split into files of this many bytes instead of splitting by line", type: Integer
         settings.define :split_program, description: "Path to the `split` program", default: 'split'
+        settings.define :uncompress_input, :description: "Force to uncompress input files", default: true, type: :boolean
         settings.define :gzip_output, description: "Gzip output files", default: true, type: :boolean
+        settings.define :ordered_handler, description: "Custom handler for ordered syncer, which put files under sub-directories"
         
         settings.description = <<-EOF
 Syncs an --input directory, with possibly growing files, to an

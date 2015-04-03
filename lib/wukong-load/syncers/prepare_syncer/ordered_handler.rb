@@ -10,11 +10,9 @@ module Wukong
         # Return the output path for the given `original` file.
         #
         # @param [Pathname] original
-        # @param [Time] time use this specific time instead of the current UTC time
         # @return [Pathname]
-        def path_for original, time=nil
-          time ||= Time.now.utc
-          current_output_directory.join(daily_directory_for(time, original)).join(slug_for(time, original))
+        def path_for original
+          current_output_directory.join(daily_directory_for(file_time(original), original)).join(slug_for(processing_time, original))
         end
 
         # Return the daily directory for the given `time`.
@@ -35,6 +33,13 @@ module Wukong
           ].join('-')
         end
         
+        def file_time original
+          File.mtime(original.to_path)
+        end
+
+        def processing_time
+          @processing_time ||= Time.now.utc
+        end
       end
     end
   end

@@ -120,17 +120,36 @@ EOF
       end
 
       def cat_program
-        case settings[:input]
-        when /\.tar\.gz$/, /\.tgz$/   then "tar -xzO -f"
-        when /\.tar\.bz2$/, /\.tbz2$/ then "tar -xjO -f"
-        when /\.gz$/                  then "zcat"
-        when /\.bz2$/                 then "bzcat"
-        when /\.zip$/                 then "unzip -p"
+        case file_type
+        when "targzip"  then "tar -xzO -f"
+        when "tarbz2"   then "tar -xjO -f"
+        when "gzip"     then "zcat"
+        when "bz2"      then "bzcat"
+        when "zip"      then "unzip -p"
         else
           "cat"
         end
       end
+
+      def file
+        settings[:input]
+      end
+
+      def file_type
+        case settings[:input]
+        when /\.tar\.gz$/, /\.tgz$/   then "targzip"
+        when /\.tar\.bz2$/, /\.tbz2$/ then "tarbz2"
+        when /\.gz$/                  then "gzip"
+        when /\.bz2$/                 then "bz2"
+        when /\.zip$/                 then "zip"
+        else
+          "ascii"
+        end
+      end
+
+      def compressed_file?
+        file_type != "ascii"
+      end
     end
-    
   end
 end

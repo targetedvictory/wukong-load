@@ -1,4 +1,5 @@
 require_relative('metadata_handler')
+require 'wukong-load/dumpers/file_dumper'
 module Wukong
   module Load
     class PrepareSyncer
@@ -36,7 +37,7 @@ module Wukong
           self.counter  = 0
           self.counter  = rand(settings[:output].size) if settings[:output] && settings[:output].size > 1
           extend (settings[:dry_run] ? FileUtils::NoWrite : FileUtils)
-          extend OrderedHandler if settings[:ordered]
+          (extend settings[:ordered_handler].nil? ? OrderedHandler : Object.const_get(settings[:ordered_handler])) if settings[:ordered]
         end
 
         # Process the `original` file in the input directory.
@@ -57,10 +58,12 @@ module Wukong
         #
         # @param [Pathname] original
         def process_input original
-          if uncompress_needed?(original)
-            uncompress_and_gzip(original)
-          else
+          file_dumper = file_dumper(original)
+
+          if !settings[:gzip_output]  && (!file_dumper.compressed_file? || (file_dumper.compressed_file? && !settings[:uncompress_input]))
             create_hardlink(original, path_for(original))
+          else
+            copy_or_uncompress_input_and_gzip_output(file_dumper)
           end
         end
 
@@ -101,40 +104,38 @@ module Wukong
           process_metadata_for(copy) if settings[:metadata]
         end
 
-        def uncompress_needed? original
-          case original.basename.to_s
-          when /\.zip$/ then true
-          else false
-          end
+        # The file dumper that will be used to dump the file into the
+        # command-line later (e.g: `split`).
+        #
+        # The file dumper is configured with the `clean` option but
+        # without the `decorate` option.
+        #
+        # @param [Pathname] original
+        # @return [FileDumper]
+        def file_dumper original
+          FileDumper.new(input: original, clean: true)
         end
 
-        def uncompress_and_gzip original
-          copy_dir = path_for(original).dirname
-          copy_filename = ""
-          mkdir_p(copy_dir)
+        def copy_or_uncompress_input_and_gzip_output original_file_dumper
+          copy_path = path_for(original_file_dumper.file)
+          copy_path = Pathname.new(copy_path.to_path + ".gz") if settings[:gzip_output]
+          mkdir_p(copy_path.dirname)
 
-          original_filename = original.basename.to_s
-          unzip_command = ""
-
-          FileUtils.cd(copy_dir) do
-            case original_filename
-            #TO-DO: finish .tar files, .bz2
-            #when /\.tar\.gz$/, /\.tgz$/   then "tar -xvfz"
-            #when /\.tar\.bz2$/, /\.tbz2$/ then "tar -xvfj -C #{copy.dirname.to_s}"
-            #when /\.bz2$/                 then "bzip2 -dk"
-            when /\.zip$/ then 
-              unzip_command = "unzip #{original.to_path} -d #{copy_dir.to_s}"
-              copy_filename = original_filename[0...-4]
-            end
-            
-            raise Error.new("Unzip command exited unsuccessfully") unless system(unzip_command)
-
-            if settings[:gzip_output]
-              raise Error.new("Gzip command exited unsuccessfully") unless system("gzip #{Shellwords.escape(copy_filename)}")
+          copy_command = file_dumper.dump_command
+          if settings[:gzip_output]
+            copy_command += " | gzip > #{copy_path.to_path}"
+          else
+            copy_command += " > #{copy_path.to_path}"
+          end
+          
+          log.debug("Processing file: #{original_file_dumper.file} -> #{copy_path}")
+          FileUtils.cd(copy_path.dirname) do
+            unless settings[:dry_run]
+              raise Error.new("Copy command exited unsuccessfully") unless system(copy_command)
             end
           end
 
-          process_metadata_for(Pathname.new("#{copy_dir}/#{copy_filename}")) if settings[:metadata]
+          process_metadata_for(copy_path) if settings[:metadata] && (! settings[:dry_run])
         end
 
         # Return the current output directory, chosen by cycling

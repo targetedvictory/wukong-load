@@ -1,4 +1,3 @@
-require 'wukong-load/dumpers/file_dumper'
 module Wukong
   module Load
     class PrepareSyncer
@@ -66,18 +65,6 @@ module Wukong
         # @return [String]
         def split_program
           settings[:split_program]
-        end
-
-        # The file dumper that will be used to dump the file into the
-        # `split` command-line.
-        #
-        # The file dumper is configured with the `clean` option but
-        # without the `decorate` option.
-        #
-        # @param [Pathname] original
-        # @return [FileDumper]
-        def file_dumper original
-          FileDumper.new(input: original, clean: true)
         end
 
         # Return the command used to dump and split the `original`
