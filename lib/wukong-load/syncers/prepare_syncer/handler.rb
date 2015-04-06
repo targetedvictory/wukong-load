@@ -5,6 +5,7 @@ module Wukong
     class PrepareSyncer
 
       autoload :OrderedHandler, 'wukong-load/syncers/prepare_syncer/ordered_handler'
+      autoload :SilverpopOrderedHandler, 'wukong-load/syncers/prepare_syncer/silverpop_ordered_handler'
 
       # Base class for other handlers to subclass.
       class Handler
@@ -37,7 +38,7 @@ module Wukong
           self.counter  = 0
           self.counter  = rand(settings[:output].size) if settings[:output] && settings[:output].size > 1
           extend (settings[:dry_run] ? FileUtils::NoWrite : FileUtils)
-          (extend settings[:ordered_handler].nil? ? OrderedHandler : Object.const_get(settings[:ordered_handler])) if settings[:ordered]
+          (extend settings[:ordered_handler].nil? ? OrderedHandler : Wukong::Load::PrepareSyncer.const_get(settings[:ordered_handler])) if settings[:ordered]
         end
 
         # Process the `original` file in the input directory.
@@ -117,11 +118,10 @@ module Wukong
         end
 
         def copy_or_uncompress_input_and_gzip_output original_file_dumper
-          copy_path = path_for(original_file_dumper.file)
-          copy_path = Pathname.new(copy_path.to_path + ".gz") if settings[:gzip_output]
+          copy_path = Pathname.new(path_for(original_file_dumper.file).dirname.join(original_file_dumper.file.basename.to_s.gsub(" ", "_")).to_path + copy_ext(original_file_dumper))
           mkdir_p(copy_path.dirname)
 
-          copy_command = file_dumper.dump_command
+          copy_command = original_file_dumper.dump_command
           if settings[:gzip_output]
             copy_command += " | gzip > #{copy_path.to_path}"
           else
@@ -136,6 +136,17 @@ module Wukong
           end
 
           process_metadata_for(copy_path) if settings[:metadata] && (! settings[:dry_run])
+        end
+
+        def copy_ext file_dumper
+          ext = ""
+          if settings[:uncompress_input] && file_dumper.compressed_file?
+            ext += ".txt"
+          end
+          if settings[:gzip_output]
+            ext += ".gz"
+          end
+          ext
         end
 
         # Return the current output directory, chosen by cycling

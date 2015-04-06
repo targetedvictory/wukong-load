@@ -736,6 +736,31 @@ $ wu-sync prepare --input=/data/ftp --output=/data/clean_1,/data/clean_2
 $ wu-sync prepare --input=/data/ftp --output=/data/clean_1,/data/clean_2
 ```
 
+#### Uncompress Input Files
+
+Force to uncompress input files. This is true by default.
+
+```
+$ wu-sync prepare --input=/data/incoming --output=/data/outgoing --uncompress_input=true
+```
+
+#### Gzip Output Files
+
+Gzip output files to save space. This is true by default.
+
+```
+$ wu-sync prepare --input=/data/incoming --output=/data/outgoing --gzip_output=true
+```
+
+#### Custom Ordered Handler Class
+
+Set custom Ordered Handler ruby class. The custom class should implement #path_for method. This will allow
+custom logic for determining file time and subdirectory structures for output. Default is OrderedHandler.
+
+```
+$ wu-sync prepare --input=/data/incoming --output=/data/outgoing --ordered_handler=OrderedHandler
+```
+
 ### To S3
 
 The `s3` sync will sync data from a local `--input` directory to an

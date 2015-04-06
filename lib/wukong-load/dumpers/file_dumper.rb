@@ -123,7 +123,7 @@ EOF
         case file_type
         when "targzip"  then "tar -xzO -f"
         when "tarbz2"   then "tar -xjO -f"
-        when "gzip"     then "zcat"
+        when "gzip"     then (/darwin/ =~ RUBY_PLATFORM) != nil ? "gzcat" : "zcat"
         when "bz2"      then "bzcat"
         when "zip"      then "unzip -p"
         else
