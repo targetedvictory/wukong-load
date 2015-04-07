@@ -759,6 +759,7 @@ custom logic for determining file time and subdirectory structures for output. D
 
 ```
 $ wu-sync prepare --input=/data/incoming --output=/data/outgoing --ordered_handler=OrderedHandler
+$ wu-sync prepare --input=tmp/incoming/silverpop/ --output=tmp/outgoing/silverpop --ordered --ordered_handler=SilverpopOrderedHandler --metadata --split=false --uncompress_input=true --gzip_output=true
 ```
 
 ### To S3
