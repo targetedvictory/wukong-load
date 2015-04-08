@@ -95,6 +95,7 @@ module Wukong
         settings.define :gzip_output, description: "Gzip output files", default: true, type: :boolean
         settings.define :ordered_handler, description: "Custom handler for ordered syncer, which put files under sub-directories"
         settings.define :ordered_by_processing_time, description: "Files partitioned into directories by time", default: false, type: :boolean
+        settings.define :ordered_time_pattern, description: "Partition directories with a time pattern, e.g. %Y/%m/%d", default: '%Y/%m/%d'
         
         settings.description = <<-EOF
 Syncs an --input directory, with possibly growing files, to an

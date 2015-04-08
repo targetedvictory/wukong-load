@@ -36,7 +36,7 @@ module Wukong
         # @param [Pathname] original
         # @return [Pathname]
         def path_for original
-          current_output_directory.join(daily_directory_for((settings[:ordered_by_processing_time] ? processing_time : file_time(original)).strftime("%Y/%m/%d"), original)).join(slug_for(processing_time, original))
+          current_output_directory.join(daily_directory_for((settings[:ordered_by_processing_time] ? processing_time : file_time(original)).strftime(settings[:ordered_time_pattern]), original)).join(slug_for(processing_time, original))
         end
 
         # Return the basename to use for the given `time` for given
