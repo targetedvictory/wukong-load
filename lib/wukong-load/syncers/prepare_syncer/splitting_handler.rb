@@ -28,7 +28,7 @@ module Wukong
             unless settings[:dry_run]
               raise Error.new("Split command exited unsuccessfully") unless system(split_command(original, copy))
               if settings[:gzip_output]
-                raise Error.new("Gzip command exited unsuccessfully") unless systme(gzip_command(copy))
+                raise Error.new("Gzip command exited unsuccessfully") unless system(gzip_command(copy))
               end
                 
               # If the input file is empty then no output file is

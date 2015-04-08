@@ -856,6 +856,12 @@ $ wu-sync-all prepare --input=/data/incoming --output=/data/received
 $ wu-sync-all s3 --input=/data/received
 ```
 
+Define environment:
+
+```
+$ ICS_PLATFORM_ENV=tvdataprod wu-sync-all prepare --input=/data/incoming --output=/data/received
+```
+
 The `--only` and `--except` options can be used to limit
 `wu-sync-all`'s action to a desired subset of sources:
 
