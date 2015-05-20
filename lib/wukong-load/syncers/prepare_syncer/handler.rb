@@ -6,6 +6,7 @@ module Wukong
 
       autoload :OrderedHandler, 'wukong-load/syncers/prepare_syncer/ordered_handler'
       autoload :SilverpopOrderedHandler, 'wukong-load/syncers/prepare_syncer/silverpop_ordered_handler'
+      autoload :CmagOrderedHandler, 'wukong-load/syncers/prepare_syncer/cmag_ordered_handler'
 
       # Base class for other handlers to subclass.
       class Handler
