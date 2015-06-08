@@ -12,7 +12,7 @@ module Wukong
         end
 
         def file_time original
-          time_str = original.basename.to_s.match(/_([1,2]{1}[0,1]{1}\d{6})_/)
+          time_str = original.basename.to_s.scan(/[_-]([12]{1}[01]{1}\d{6})[_-]/).last
           if time_str
             DateTime.strptime(time_str[1], '%Y%m%d')
           else
