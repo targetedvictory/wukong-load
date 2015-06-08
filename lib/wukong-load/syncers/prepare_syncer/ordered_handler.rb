@@ -14,7 +14,7 @@ module Wukong
         def file_time original
           time_str = original.basename.to_s.scan(/[1,2]{1}[0,1]{1}\d{6}/).last
           if time_str
-            DateTime.strptime(time_str[1], '%Y%m%d')
+            DateTime.strptime(time_str, '%Y%m%d')
           else
             File.mtime(original.to_path)
           end
