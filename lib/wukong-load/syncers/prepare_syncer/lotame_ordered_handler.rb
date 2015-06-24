@@ -14,7 +14,7 @@ module Wukong
         # @param [Pathname] original
         # @return [Pathname]
         def path_for original
-          current_output_directory.join(daily_directory_for(file_time_by_filepath(original).strftime(settings[:ordered_time_pattern]), original)).join(relative_path_of(original, settings[:input]))
+          current_output_directory.join(file_time_by_filepath(original).strftime(settings[:ordered_time_pattern])).join(original.basename)
         end
 
         def file_time_by_filepath original
