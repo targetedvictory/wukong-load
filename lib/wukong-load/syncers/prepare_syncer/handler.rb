@@ -8,6 +8,7 @@ module Wukong
       autoload :SilverpopOrderedHandler, 'wukong-load/syncers/prepare_syncer/silverpop_ordered_handler'
       autoload :CmagOrderedHandler, 'wukong-load/syncers/prepare_syncer/cmag_ordered_handler'
       autoload :LotameOrderedHandler, 'wukong-load/syncers/prepare_syncer/lotame_ordered_handler'
+      autoload :DatoramaOrderedHandler, 'wukong-load/syncers/prepare_syncer/datorama_ordered_handler'
 
       # Base class for other handlers to subclass.
       class Handler

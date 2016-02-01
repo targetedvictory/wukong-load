@@ -23,6 +23,16 @@ module Wukong
         def processing_time
           @processing_time ||= Time.now.utc
         end
+
+        # Return the basename to use for the given `time` for given
+        # `original` file.
+        def slug_for(time, original)
+          [
+           time.strftime("%Y%m%d-%H%M%S"),
+           counter.to_s,
+           relative_path_of(original, settings[:input]).to_s.gsub(%r{/},'-'),
+          ].join('-')
+        end
       end
 
       # Can be included into another Handler class to make that
@@ -37,16 +47,6 @@ module Wukong
         # @return [Pathname]
         def path_for original
           current_output_directory.join(daily_directory_for((settings[:ordered_by_processing_time] ? processing_time : file_time(original)).strftime(settings[:ordered_time_pattern]), original)).join(slug_for(processing_time, original))
-        end
-
-        # Return the basename to use for the given `time` for given
-        # `original` file.
-        def slug_for(time, original)
-          [
-           time.strftime("%Y%m%d-%H%M%S"),
-           counter.to_s,
-           relative_path_of(original, settings[:input]).to_s.gsub(%r{/},'-'),
-          ].join('-')
         end
       end
     end
